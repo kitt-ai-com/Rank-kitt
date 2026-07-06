@@ -34,6 +34,34 @@ const LOADING_MSGS = [
   "행동전략을 구성하는 중…",
 ];
 
+/* 진단 대상 AI 검색·플랫폼 (브랜드 컬러 인라인 SVG · 공식 로고 파일 아님) */
+const PLATFORMS = [
+  { name: "ChatGPT", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#10A37F" /><g stroke="#fff" strokeWidth="1.3" strokeLinecap="round"><path d="M12 6v12M6 12h12M7.8 7.8l8.4 8.4M16.2 7.8l-8.4 8.4" /></g></svg>
+  ) },
+  { name: "Perplexity", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#20808D" /><g stroke="#fff" strokeWidth="1.3" fill="none" strokeLinecap="round"><path d="M12 5v14" /><path d="M12 8l5 3-5 3" /><path d="M12 8L7 11l5 3" /></g></svg>
+  ) },
+  { name: "Google AI", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="3" fill="#4285F4" /><circle cx="19.5" cy="12" r="3" fill="#EA4335" /><circle cx="12" cy="19.5" r="3" fill="#FBBC05" /><circle cx="4.5" cy="12" r="3" fill="#34A853" /></svg>
+  ) },
+  { name: "Gemini", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.5 5.5 4.5 9.5 10 10-5.5.5-9.5 4.5-10 10-.5-5.5-4.5-9.5-10-10 5.5-.5 9.5-4.5 10-10z" fill="#4285F4" /></svg>
+  ) },
+  { name: "네이버 Cue:", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#03C75A" /><path d="M8 17V7h2.6l2.8 5.2V7H16v10h-2.6l-2.8-5.2V17z" fill="#fff" /></svg>
+  ) },
+  { name: "Copilot", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#2B7DE9" /><path d="M6.5 14.5c1-4.2 3-5.5 5.5-5.5s3.5 2.8 5.5 2.8" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
+  ) },
+  { name: "YouTube", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="5" width="22" height="14" rx="4" fill="#FF0000" /><path d="M10 8.3v7.4l6.4-3.7z" fill="#fff" /></svg>
+  ) },
+  { name: "나무위키", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#008275" /><path d="M12 5l4.2 6.2h-2.6l2.6 4H7.8l2.6-4H7.8z" fill="#fff" /><rect x="11.2" y="14.5" width="1.6" height="4" fill="#fff" /></svg>
+  ) },
+];
+
 const effClass = (e = "") => (/낮/.test(e) ? "low" : /높/.test(e) ? "high" : "mid");
 const statClass = (s = "") => (/있/.test(s) ? "ok" : /부분/.test(s) ? "part" : /없/.test(s) ? "no" : "na");
 const impClass = (i = "") => (/높/.test(i) ? "high" : /낮/.test(i) ? "low" : "mid");
@@ -123,10 +151,39 @@ export default function DiagnoseClient() {
         </div>
       </header>
 
+      {/* HERO */}
+      <section className="hero">
+        <div className="wrap hero-wrap">
+          <div className="hero-copy">
+            <div className="eyebrow">AEO / GEO</div>
+            <h1 className="thesis">고객은 이제 검색하지 않고,<br /><em>AI에게 묻습니다.</em></h1>
+            <p className="hero-sub">ChatGPT·Perplexity·구글 AI가 대신 답하는 시대. 그 답변에 <b>당신 브랜드가 인용되는지</b>가 매출을 가릅니다.</p>
+          </div>
+          <div className="hero-card">
+            <div className="ai-card">
+              <div className="ai-q"><span className="qmark">Q</span> 서울에서 믿을만한 곳 어디가 좋아?</div>
+              <div className="ai-a">
+                <span className="ai-badge">AI 답변</span>
+                <p>
+                  <span className="ai-seg s1">○○업체</span>, <span className="ai-seg s2">△△업체</span>가 있고,
+                  특히 <span className="brand-cite">당신의 브랜드<i>✓ 인용</i></span> 는 후기·전문 콘텐츠가 풍부해 가장 신뢰도가 높습니다.
+                </p>
+              </div>
+              <div className="ai-cites">
+                <span className="cite-chip s3">naver.com</span>
+                <span className="cite-chip s4 hot">당신의 브랜드 · 공식</span>
+                <span className="cite-chip s5">namu.wiki</span>
+              </div>
+            </div>
+            <div className="card-cap">AI 답변에 인용되면 → 고객이 당신을 <b>먼저</b> 만납니다</div>
+          </div>
+        </div>
+      </section>
+
       {/* INPUT */}
       <section className="panel">
         <div className="wrap">
-          <div className="eyebrow">AEO / GEO Diagnostic</div>
+          <div className="eyebrow">지금 무료로 진단</div>
           <h1>사이트를 넣으면,<br /><em>맞춤 행동전략</em>이 나옵니다.</h1>
           <p className="lede">브랜드를 실제로 웹에서 조사해, 지금 AI 검색에서의 노출 상태를 진단하고
             네이버·구글·YouTube·소셜 등 채널별로 무엇을 해야 하는지 정리합니다.</p>
@@ -146,8 +203,8 @@ export default function DiagnoseClient() {
           <div className="platforms">
             <div className="plabel">이런 AI 검색·플랫폼에서 브랜드 노출을 진단합니다</div>
             <div className="plist">
-              {["ChatGPT", "Perplexity", "Google AI", "Gemini", "네이버 Cue:", "Copilot", "YouTube", "나무위키"].map((p) => (
-                <span className="pchip" key={p}><i className="pdot" />{p}</span>
+              {PLATFORMS.map((p) => (
+                <span className="pchip" key={p.name}><span className="picon">{p.icon}</span>{p.name}</span>
               ))}
             </div>
           </div>
@@ -372,6 +429,33 @@ export default function DiagnoseClient() {
         .mbtn.ghost:hover{color:var(--bad);border-color:var(--bad)}
         .modal-note{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em;text-align:center}
 
+        /* HERO */
+        .hero{border-bottom:1px solid var(--line);padding:46px 0 42px}
+        .hero-wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
+        .thesis{font-weight:900;font-size:clamp(26px,3.6vw,40px);line-height:1.16;letter-spacing:-.03em;margin:14px 0 16px}
+        .thesis em{font-style:normal;color:var(--accent)}
+        .hero-sub{font-size:16px;color:#3a382f;max-width:24em;line-height:1.62}
+        .hero-sub b{color:var(--ink);box-shadow:inset 0 -8px 0 var(--accent-soft)}
+
+        .ai-card{background:#fff;border:1px solid var(--line-strong);border-radius:16px;padding:20px 22px;box-shadow:0 22px 54px -26px rgba(21,20,15,.45)}
+        .ai-q{font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+        .ai-q .qmark{width:22px;height:22px;border-radius:7px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:12px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+        .ai-a{padding-top:14px}
+        .ai-badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;display:block;margin-bottom:8px}
+        .ai-a p{font-size:14px;line-height:1.75;color:#2b2a22}
+        .ai-seg{opacity:0;animation:fadeUp .5s ease forwards}
+        .ai-seg.s1{animation-delay:.35s}.ai-seg.s2{animation-delay:.75s}
+        .brand-cite{opacity:0;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:6px;white-space:nowrap;animation:fadeUp .5s ease 1.4s forwards,citePulse 2.6s ease-in-out 2s infinite}
+        .brand-cite i{font-style:normal;font-family:var(--mono);font-size:10px;margin-left:6px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:4px}
+        .ai-cites{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+        .cite-chip{font-family:var(--mono);font-size:11px;color:var(--muted);background:#f6f5ef;border:1px solid var(--line);border-radius:999px;padding:4px 10px;opacity:0;animation:fadeUp .4s ease forwards}
+        .cite-chip.s3{animation-delay:1.8s}.cite-chip.s4{animation-delay:2.1s}.cite-chip.s5{animation-delay:2.4s}
+        .cite-chip.hot{color:var(--accent);background:var(--accent-soft);border-color:var(--accent);font-weight:700}
+        .card-cap{margin-top:15px;font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;letter-spacing:.01em}
+        .card-cap b{color:var(--accent)}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+        @keyframes citePulse{0%,100%{box-shadow:0 0 0 0 rgba(46,43,230,0)}50%{box-shadow:0 0 0 4px rgba(46,43,230,.13)}}
+
         .panel{padding:52px 0 44px;border-bottom:1px solid var(--line)}
         .panel h1{font-weight:900;font-size:clamp(26px,3.8vw,40px);line-height:1.16;letter-spacing:-.025em;margin:16px 0 14px}
         .panel h1 em{font-style:normal;position:relative;white-space:nowrap}
@@ -394,7 +478,8 @@ export default function DiagnoseClient() {
         .plist{display:flex;flex-wrap:wrap;gap:8px}
         .pchip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;transition:border-color .15s,transform .15s}
         .pchip:hover{border-color:var(--accent);transform:translateY(-1px)}
-        .pchip .pdot{width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.55;flex-shrink:0}
+        .pchip .picon{display:inline-flex;width:16px;height:16px;flex-shrink:0}
+        .pchip .picon svg{width:16px;height:16px;display:block}
 
         .loading{padding:56px 0;text-align:center}
         .spin{width:34px;height:34px;border:3px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;margin:0 auto 20px;animation:sp 800ms linear infinite}
@@ -475,6 +560,9 @@ export default function DiagnoseClient() {
 
         @media(max-width:640px){
           .wrap{padding:0 18px}
+          .hero{padding:32px 0 30px}
+          .hero-wrap{grid-template-columns:1fr;gap:24px}
+          .hero-sub{font-size:15px}
           .header-right{gap:8px}
           .settings-link{font-size:11px;padding:6px 10px}
           .kakao-btn{font-size:11px;padding:6px 10px}
