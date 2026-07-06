@@ -456,11 +456,11 @@ export default function DiagnoseClient() {
         @keyframes fadeUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
         @keyframes citePulse{0%,100%{box-shadow:0 0 0 0 rgba(46,43,230,0)}50%{box-shadow:0 0 0 4px rgba(46,43,230,.13)}}
 
-        .panel{padding:52px 0 44px;border-bottom:1px solid var(--line)}
-        .panel h1{font-weight:900;font-size:clamp(26px,3.8vw,40px);line-height:1.16;letter-spacing:-.025em;margin:16px 0 14px}
+        .panel{padding:34px 0 40px;border-bottom:1px solid var(--line)}
+        .panel h1{font-weight:800;font-size:clamp(18px,2.2vw,24px);line-height:1.28;letter-spacing:-.02em;margin:12px 0 10px}
         .panel h1 em{font-style:normal;position:relative;white-space:nowrap}
         .panel h1 em::after{content:"";position:absolute;left:-2px;right:-2px;bottom:2px;height:.30em;background:var(--accent-soft);z-index:-1}
-        .lede{font-size:16px;color:#3a382f;max-width:38em;margin-bottom:26px}
+        .lede{font-size:14px;color:var(--muted);max-width:40em;margin-bottom:22px;line-height:1.55}
         .form{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
         .field{flex:1;min-width:240px;display:flex;flex-direction:column;gap:6px}
         .field.small{flex:0 0 200px;min-width:160px}
