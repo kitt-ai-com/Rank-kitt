@@ -143,6 +143,14 @@ export default function DiagnoseClient() {
             </div>
             <button className="btn" onClick={generate} disabled={loading}>전략 생성 →</button>
           </div>
+          <div className="platforms">
+            <div className="plabel">이런 AI 검색·플랫폼에서 브랜드 노출을 진단합니다</div>
+            <div className="plist">
+              {["ChatGPT", "Perplexity", "Google AI", "Gemini", "네이버 Cue:", "Copilot", "YouTube", "나무위키"].map((p) => (
+                <span className="pchip" key={p}><i className="pdot" />{p}</span>
+              ))}
+            </div>
+          </div>
           {error && <div className="err">{error}</div>}
         </div>
       </section>
@@ -380,6 +388,13 @@ export default function DiagnoseClient() {
         .btn:disabled{opacity:.55;cursor:not-allowed}
         .hint{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:16px}
         .err{margin-top:14px;font-size:13.5px;color:var(--bad);font-family:var(--mono)}
+
+        .platforms{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+        .plabel{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+        .plist{display:flex;flex-wrap:wrap;gap:8px}
+        .pchip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;transition:border-color .15s,transform .15s}
+        .pchip:hover{border-color:var(--accent);transform:translateY(-1px)}
+        .pchip .pdot{width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.55;flex-shrink:0}
 
         .loading{padding:56px 0;text-align:center}
         .spin{width:34px;height:34px;border:3px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;margin:0 auto 20px;animation:sp 800ms linear infinite}
