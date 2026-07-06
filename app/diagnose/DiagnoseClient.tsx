@@ -48,7 +48,7 @@ const PLATFORMS = [
   { name: "Gemini", icon: (
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.5 5.5 4.5 9.5 10 10-5.5.5-9.5 4.5-10 10-.5-5.5-4.5-9.5-10-10 5.5-.5 9.5-4.5 10-10z" fill="#4285F4" /></svg>
   ) },
-  { name: "네이버 Cue:", icon: (
+  { name: "NAVER", icon: (
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#03C75A" /><path d="M8 17V7h2.6l2.8 5.2V7H16v10h-2.6l-2.8-5.2V17z" fill="#fff" /></svg>
   ) },
   { name: "Copilot", icon: (
@@ -191,7 +191,7 @@ export default function DiagnoseClient() {
             <div className="field">
               <label htmlFor="url">사이트 주소</label>
               <input id="url" type="text" value={url} onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={onKey} placeholder="예: kitt.ai.kr 또는 브랜드명" autoComplete="off" />
+                onKeyDown={onKey} placeholder="예: kitt.ai.kr 또는 브랜드명" autoComplete="off" autoFocus />
             </div>
             <div className="field small">
               <label htmlFor="biz">업종 · 지역 (선택)</label>
@@ -475,8 +475,9 @@ export default function DiagnoseClient() {
 
         .platforms{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
         .plabel{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
-        .plist{display:flex;flex-wrap:wrap;gap:8px}
-        .pchip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;transition:border-color .15s,transform .15s}
+        .plist{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
+        .plist::-webkit-scrollbar{display:none}
+        .pchip{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;transition:border-color .15s,transform .15s}
         .pchip:hover{border-color:var(--accent);transform:translateY(-1px)}
         .pchip .picon{display:inline-flex;width:16px;height:16px;flex-shrink:0}
         .pchip .picon svg{width:16px;height:16px;display:block}
