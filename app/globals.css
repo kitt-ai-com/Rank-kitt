@@ -1,0 +1,15 @@
+:root{
+  --font-noto: 'Noto Sans KR';
+  --font-mono: 'JetBrains Mono';
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:#FBFAF6;
+  color:#15140F;
+  font-family: var(--font-noto), system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid #2E2BE6;outline-offset:3px;border-radius:4px}
