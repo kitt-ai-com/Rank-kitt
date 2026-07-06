@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState, useEffect, type KeyboardEvent } from "react";
 
 /* ---------------- 타입 ---------------- */
 type Channel = { name: string; status: string; impact: string; note: string; action: string };
@@ -17,6 +17,15 @@ type Result = {
   priorities: string[];
 };
 
+/* ---------------- API 키 설정 ---------------- */
+type ApiKeyDef = { provider: string; key: string; name: string; placeholder: string; hint: string };
+const API_KEYS: ApiKeyDef[] = [
+  { provider: "opencode", key: "opencode_api_key", name: "OpenCode Zen (무료 모델)", placeholder: "OpenCode Zen 키", hint: "무료 · 권장 → opencode.ai/zen" },
+  { provider: "google", key: "google_api_key", name: "Google Gemini", placeholder: "AIzaSy...", hint: "무료(지역 제한 가능) → aistudio.google.com" },
+  { provider: "anthropic", key: "anthropic_api_key", name: "Anthropic (Claude)", placeholder: "sk-ant-...", hint: "유료 · 웹검색 지원" },
+];
+const STORAGE_KEY = "kitt_settings";
+
 const LOADING_MSGS = [
   "브랜드를 웹에서 조사하는 중…",
   "네이버·구글·YouTube 노출 확인 중…",
@@ -32,11 +41,32 @@ const impClass = (i = "") => (/높/.test(i) ? "high" : /낮/.test(i) ? "low" : "
 export default function DiagnoseClient() {
   const [url, setUrl] = useState("");
   const [biz, setBiz] = useState("");
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [lmsg, setLmsg] = useState(LOADING_MSGS[0]);
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
+
+  /* ---- API 설정 모달 ---- */
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [savedMsg, setSavedMsg] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) setApiKeys(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, []);
+
+  function saveApiKeys() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(apiKeys));
+      setSavedMsg(true);
+      setTimeout(() => setSavedMsg(false), 2500);
+    } catch { /* ignore */ }
+  }
+
+  const configured = API_KEYS.filter((a) => (apiKeys[a.key] || "").trim()).length;
 
   async function generate() {
     setError("");
@@ -52,7 +82,14 @@ export default function DiagnoseClient() {
       const res = await fetch("/api/diagnose", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url, biz, email }),
+        body: JSON.stringify({
+          url, biz,
+          keys: {
+            opencode: (apiKeys.opencode_api_key || "").trim() || undefined,
+            anthropic: (apiKeys.anthropic_api_key || "").trim() || undefined,
+            google: (apiKeys.google_api_key || "").trim() || undefined,
+          },
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
@@ -69,11 +106,20 @@ export default function DiagnoseClient() {
   const sc = result ? Math.max(0, Math.min(100, Math.round(result.visibility?.score || 0))) : 0;
 
   return (
-    <div className="root">
+    <div className="root" suppressHydrationWarning>
       <header className="topbar">
         <div className="wrap tb">
-          <div className="brand">Kitt<span> AI</span> · AI 가시성 진단기</div>
-          <div className="by">powered by Claude</div>
+          <div className="brand">Rank<span> kitt</span> · AEO, GEO 진단 분석기</div>
+          <div className="header-right">
+            <a className="kakao-btn" href="http://pf.kakao.com/_BDanX/chat" target="_blank" rel="noreferrer">
+              <span className="kmark">💬</span> 카톡 문의
+            </a>
+            <button className="settings-link" onClick={() => setSettingsOpen(true)}>
+              <span className="gear">⚙</span> API 설정
+              {configured > 0 && <span className="badge">{configured}</span>}
+            </button>
+            <div className="by">powered by kitt AI</div>
+          </div>
         </div>
       </header>
 
@@ -97,12 +143,6 @@ export default function DiagnoseClient() {
             </div>
             <button className="btn" onClick={generate} disabled={loading}>전략 생성 →</button>
           </div>
-          <div className="field email">
-            <label htmlFor="email">이메일 (선택 · 리포트 받기)</label>
-            <input id="email" type="text" value={email} onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={onKey} placeholder="you@company.com" autoComplete="off" />
-          </div>
-          <div className="hint">실제 웹 검색으로 브랜드를 조사합니다 · 15~40초 소요</div>
           {error && <div className="err">{error}</div>}
         </div>
       </section>
@@ -215,7 +255,59 @@ export default function DiagnoseClient() {
         </section>
       )}
 
-      <div className="foot">Kitt AI inc. · partner@kitt.ai.kr · kitt.ai.kr</div>
+      <div className="foot">Kitt AI inc. · <a href="mailto:partner@kitt.ai.kr">partner@kitt.ai.kr</a> · <a href="https://kitt.ai.kr" target="_blank" rel="noreferrer">kitt.ai.kr</a></div>
+
+      {/* API 설정 모달 */}
+      {settingsOpen && (
+        <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <div>
+                <div className="eyebrow">Settings</div>
+                <h2>AI 모델 API 키</h2>
+              </div>
+              <button className="close" onClick={() => setSettingsOpen(false)} aria-label="닫기">×</button>
+            </div>
+            <p className="modal-lede">무료로 쓰려면 <b>OpenCode Zen</b> 또는 <b>Gemini</b> 키를 등록하세요. 여러 개면 <b>OpenCode → Gemini → Claude</b> 순으로 사용됩니다. 키는 이 브라우저에만 저장되며 진단 시에만 서버로 전송됩니다.
+              <br /><span style={{ fontSize: "11.5px", color: "var(--warn)" }}>※ OpenCode 무료 모델은 실시간 웹검색 미지원(지식 기반 진단) · 실시간 웹 조사는 Claude(sk-ant/Max)에서 동작</span></p>
+
+            <div className="keys">
+              {API_KEYS.map((a) => {
+                const val = apiKeys[a.key] || "";
+                return (
+                  <div className="keyrow" key={a.key}>
+                    <div className="keylabel">
+                      <span className="kname">{a.name}</span>
+                      <span className="khint">{a.hint}</span>
+                    </div>
+                    <div className="keyinput">
+                      <input
+                        type="password"
+                        value={val}
+                        onChange={(e) => { setApiKeys((p) => ({ ...p, [a.key]: e.target.value })); setSavedMsg(false); }}
+                        placeholder={a.placeholder}
+                        autoComplete="off"
+                        spellCheck={false}
+                      />
+                      <i className={"dot " + (val.trim() ? "on" : "off")} title={val.trim() ? "등록됨" : "미등록"} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="modal-actions">
+              {savedMsg && <span className="saved-msg">✓ 저장되었습니다</span>}
+              <button className="mbtn ghost" onClick={() => { setApiKeys({}); localStorage.removeItem(STORAGE_KEY); }}>모두 지우기</button>
+              <button className="mbtn primary" onClick={saveApiKeys}>저장</button>
+            </div>
+
+            <div className="modal-note">
+              🔒 브라우저 로컬 저장 · 서버 미전송 · 공용 PC 사용 주의
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .root{
@@ -232,7 +324,45 @@ export default function DiagnoseClient() {
         .tb{display:flex;align-items:center;justify-content:space-between;height:58px}
         .brand{font-family:var(--mono);font-weight:700;font-size:15px}
         .brand span{color:var(--accent)}
-        .by{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em}
+        .header-right{display:flex;align-items:center;gap:18px}
+        .settings-link{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line-strong);border-radius:8px;padding:7px 13px;cursor:pointer;display:flex;align-items:center;gap:7px;text-decoration:none;transition:border-color .15s,background .15s,transform .15s}
+        .settings-link:hover{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+        .settings-link .gear{font-size:13px;line-height:1}
+        .settings-link .badge{font-family:var(--mono);font-size:10px;font-weight:700;background:var(--accent);color:#fff;min-width:16px;height:16px;padding:0 4px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+        .kakao-btn{font-family:var(--mono);font-size:12px;font-weight:700;color:#3c1e1e;background:#FEE500;border:1px solid #ecd400;border-radius:8px;padding:7px 13px;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:transform .15s,box-shadow .2s}
+        .kakao-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -8px rgba(254,229,0,.9)}
+        .kakao-btn .kmark{font-size:12px;line-height:1}
+        .by{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em;white-space:nowrap}
+
+        /* API 설정 모달 */
+        .modal-overlay{position:fixed;inset:0;background:rgba(21,20,15,.42);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;animation:fade .18s ease}
+        @keyframes fade{from{opacity:0}to{opacity:1}}
+        .modal{background:var(--paper);border:1px solid var(--line-strong);border-radius:18px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:26px 26px 22px;box-shadow:0 30px 60px -20px rgba(21,20,15,.5);animation:pop .2s cubic-bezier(.2,.8,.2,1)}
+        @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+        .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+        .modal-head h2{font-weight:900;font-size:21px;letter-spacing:-.02em;margin-top:6px}
+        .close{background:none;border:none;font-size:26px;line-height:1;color:var(--muted);cursor:pointer;padding:0 4px;transition:color .15s}
+        .close:hover{color:var(--ink)}
+        .modal-lede{font-size:13.5px;color:var(--muted);line-height:1.55;margin:8px 0 20px}
+        .keys{display:flex;flex-direction:column;gap:15px}
+        .keyrow{display:flex;flex-direction:column;gap:7px}
+        .keylabel{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+        .kname{font-weight:700;font-size:13.5px;letter-spacing:-.01em}
+        .khint{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.03em;white-space:nowrap}
+        .keyinput{position:relative;display:flex;align-items:center}
+        .keyinput input{font-family:var(--mono);font-size:13px;padding:11px 34px 11px 13px;border:1px solid var(--line-strong);border-radius:9px;background:#fff;color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
+        .keyinput input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+        .dot{position:absolute;right:12px;width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .dot.on{background:var(--good)}
+        .dot.off{background:var(--line-strong)}
+        .modal-actions{display:flex;align-items:center;gap:10px;margin-top:22px;flex-wrap:wrap}
+        .saved-msg{font-family:var(--mono);font-size:12px;color:var(--good);font-weight:600;margin-right:auto}
+        .mbtn{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.02em;border-radius:9px;padding:11px 20px;cursor:pointer;transition:transform .15s,box-shadow .2s,background .15s;border:1px solid transparent}
+        .mbtn.primary{background:var(--accent);color:#fff;margin-left:auto}
+        .mbtn.primary:hover{transform:translateY(-1px);box-shadow:0 10px 20px -10px rgba(46,43,230,.7)}
+        .mbtn.ghost{background:#fff;color:var(--muted);border-color:var(--line-strong)}
+        .mbtn.ghost:hover{color:var(--bad);border-color:var(--bad)}
+        .modal-note{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em;text-align:center}
 
         .panel{padding:52px 0 44px;border-bottom:1px solid var(--line)}
         .panel h1{font-weight:900;font-size:clamp(26px,3.8vw,40px);line-height:1.16;letter-spacing:-.025em;margin:16px 0 14px}
@@ -242,7 +372,6 @@ export default function DiagnoseClient() {
         .form{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
         .field{flex:1;min-width:240px;display:flex;flex-direction:column;gap:6px}
         .field.small{flex:0 0 200px;min-width:160px}
-        .field.email{max-width:360px;margin-top:14px}
         .field label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
         input{font-family:var(--kr);font-size:16px;padding:13px 15px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
         input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -326,15 +455,23 @@ export default function DiagnoseClient() {
         .rcta a{display:inline-block;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.03em;background:var(--accent);color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px}
 
         .foot{border-top:1px solid var(--line);padding:22px 0;font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;letter-spacing:.03em}
+        .foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line-strong);transition:color .15s,border-color .15s}
+        .foot a:hover{color:var(--accent);border-color:var(--accent)}
 
         @media(max-width:640px){
           .wrap{padding:0 18px}
+          .header-right{gap:8px}
+          .settings-link{font-size:11px;padding:6px 10px}
+          .kakao-btn{font-size:11px;padding:6px 10px}
           .by{display:none}
           .brand{font-size:13px;letter-spacing:-.01em}
+          .modal{padding:22px 18px 18px;border-radius:14px}
+          .modal-head h2{font-size:19px}
+          .mbtn.primary{flex:1}
           .panel{padding:36px 0 34px}
           .lede{font-size:15px}
           .form{flex-direction:column;gap:14px}
-          .field,.field.small,.field.email{flex:1 1 auto;min-width:0;width:100%;max-width:none}
+          .field,.field.small{flex:1 1 auto;min-width:0;width:100%;max-width:none}
           .btn{align-self:stretch;width:100%;padding:15px 20px}
           .results{padding:34px 0}
           .rsummary{font-size:15px}
