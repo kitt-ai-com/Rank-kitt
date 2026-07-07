@@ -164,54 +164,45 @@ export default function DiagnoseClient() {
         </div>
       </header>
 
-      {/* HERO */}
+      {/* HERO + SEARCH */}
       <section className="hero">
-        <div className="wrap hero-wrap">
-          <div className="hero-copy">
-            <div className="eyebrow">AEO / GEO</div>
-            <h1 className="thesis">고객은 이제 검색하지 않고,<br /><em>AI에게 묻습니다.</em></h1>
-            <p className="hero-sub">ChatGPT·Perplexity·구글 AI가 대신 답하는 시대. 그 답변에 <b>당신 브랜드가 인용되는지</b>가 매출을 가릅니다.</p>
-          </div>
-          <div className="hero-card">
-            <div className="ai-card">
-              <div className="ai-q"><span className="qmark">Q</span> 서울에서 믿을만한 곳 어디가 좋아?</div>
-              <div className="ai-a">
-                <span className="ai-badge">AI 답변</span>
-                <p>
-                  <span className="ai-seg s1">○○업체</span>, <span className="ai-seg s2">△△업체</span>가 있고,
-                  특히 <span className="brand-cite">당신의 브랜드<i>✓ 인용</i></span> 는 후기·전문 콘텐츠가 풍부해 가장 신뢰도가 높습니다.
-                </p>
-              </div>
-              <div className="ai-cites">
-                <span className="cite-chip s3">naver.com</span>
-                <span className="cite-chip s4 hot">당신의 브랜드 · 공식</span>
-                <span className="cite-chip s5">namu.wiki</span>
-              </div>
-            </div>
-            <div className="card-cap">AI 답변에 인용되면 → 고객이 당신을 <b>먼저</b> 만납니다</div>
-          </div>
-        </div>
-      </section>
-
-      {/* INPUT */}
-      <section className="panel">
         <div className="wrap">
-          <div className="eyebrow">지금 무료로 진단</div>
-          <h1>사이트를 넣으면,<br /><em>맞춤 행동전략</em>이 나옵니다.</h1>
-          <p className="lede">브랜드를 실제로 웹에서 조사해, 지금 AI 검색에서의 노출 상태를 진단하고
-            네이버·구글·YouTube·소셜 등 채널별로 무엇을 해야 하는지 정리합니다.</p>
-          <div className="form">
-            <div className="field">
-              <label htmlFor="url">사이트 주소</label>
-              <input id="url" type="text" value={url} onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={onKey} placeholder="예: kitt.ai.kr 또는 브랜드명" autoComplete="off" autoFocus />
+          <div className="hero-grid">
+            <div className="hero-copy">
+              <div className="eyebrow">AEO / GEO · 무료 진단</div>
+              <h1 className="thesis">고객은 이제 검색하지 않고,<br /><em>AI에게 묻습니다.</em></h1>
+              <p className="hero-sub">그 답변에 <b>당신 브랜드가 인용되는지</b> — 사이트만 넣으면 30초 만에 무료 진단.</p>
+              <div className="search">
+                <div className="search-main">
+                  <input id="url" className="search-url" type="text" value={url}
+                    onChange={(e) => setUrl(e.target.value)} onKeyDown={onKey}
+                    placeholder="사이트 주소 또는 브랜드명" autoComplete="off" autoFocus />
+                  <button className="search-btn" onClick={generate} disabled={loading}>무료 진단 →</button>
+                </div>
+                <input id="biz" className="search-biz" type="text" value={biz}
+                  onChange={(e) => setBiz(e.target.value)} onKeyDown={onKey}
+                  placeholder="업종·지역 (선택 · 예: 서울 인테리어)" autoComplete="off" />
+              </div>
+              {error && <div className="err">{error}</div>}
             </div>
-            <div className="field small">
-              <label htmlFor="biz">업종 · 지역 (선택)</label>
-              <input id="biz" type="text" value={biz} onChange={(e) => setBiz(e.target.value)}
-                onKeyDown={onKey} placeholder="예: 서울 인테리어" autoComplete="off" />
+            <div className="hero-card">
+              <div className="ai-card">
+                <div className="ai-q"><span className="qmark">Q</span> 서울에서 믿을만한 곳 어디가 좋아?</div>
+                <div className="ai-a">
+                  <span className="ai-badge">AI 답변</span>
+                  <p>
+                    <span className="ai-seg s1">○○업체</span>, <span className="ai-seg s2">△△업체</span>가 있고,
+                    특히 <span className="brand-cite">당신의 브랜드<i>✓ 인용</i></span> 는 후기·전문 콘텐츠가 풍부해 가장 신뢰도가 높습니다.
+                  </p>
+                </div>
+                <div className="ai-cites">
+                  <span className="cite-chip s3">naver.com</span>
+                  <span className="cite-chip s4 hot">당신의 브랜드 · 공식</span>
+                  <span className="cite-chip s5">namu.wiki</span>
+                </div>
+              </div>
+              <div className="card-cap">AI 답변에 인용되면 → 고객이 당신을 <b>먼저</b> 만납니다</div>
             </div>
-            <button className="btn" onClick={generate} disabled={loading}>전략 생성 →</button>
           </div>
           <div className="platforms">
             <div className="plabel">이런 AI 검색·플랫폼에서 브랜드 노출을 진단합니다</div>
@@ -223,7 +214,6 @@ export default function DiagnoseClient() {
               </div>
             </div>
           </div>
-          {error && <div className="err">{error}</div>}
         </div>
       </section>
 
@@ -444,15 +434,26 @@ export default function DiagnoseClient() {
         .mbtn.ghost:hover{color:var(--bad);border-color:var(--bad)}
         .modal-note{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em;text-align:center}
 
-        /* HERO */
-        .hero{border-bottom:1px solid var(--line);padding:46px 0 42px}
-        .hero-wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
-        .thesis{font-weight:900;font-size:clamp(26px,3.6vw,40px);line-height:1.16;letter-spacing:-.03em;margin:14px 0 16px}
+        /* HERO + SEARCH */
+        .hero{border-bottom:1px solid var(--line);padding:38px 0 30px}
+        .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center}
+        .thesis{font-weight:900;font-size:clamp(23px,3vw,34px);line-height:1.17;letter-spacing:-.03em;margin:12px 0 12px}
         .thesis em{font-style:normal;color:var(--accent)}
-        .hero-sub{font-size:16px;color:#3a382f;max-width:24em;line-height:1.62}
+        .hero-sub{font-size:15px;color:#3a382f;max-width:26em;line-height:1.6}
         .hero-sub b{color:var(--ink);box-shadow:inset 0 -8px 0 var(--accent-soft)}
 
-        .ai-card{background:#fff;border:1px solid var(--line-strong);border-radius:16px;padding:20px 22px;box-shadow:0 22px 54px -26px rgba(21,20,15,.45)}
+        /* 검색바 (강조) */
+        .search{margin-top:20px}
+        .search-main{display:flex;gap:9px}
+        .search-url{flex:1;min-width:0;font-family:var(--kr);font-size:16px;font-weight:500;padding:15px 18px;border:2px solid var(--line-strong);border-radius:12px;background:#fff;color:var(--ink)}
+        .search-url:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);outline:none}
+        .search-btn{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.02em;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:0 26px;cursor:pointer;white-space:nowrap;box-shadow:0 12px 26px -10px rgba(46,43,230,.65);transition:transform .15s,box-shadow .2s,opacity .2s}
+        .search-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(46,43,230,.75)}
+        .search-btn:disabled{opacity:.55;cursor:not-allowed}
+        .search-biz{width:100%;margin-top:9px;font-family:var(--kr);font-size:14px;padding:11px 16px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink)}
+        .search-biz:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);outline:none}
+
+        .ai-card{background:#fff;border:1px solid var(--line-strong);border-radius:16px;padding:17px 19px;box-shadow:0 22px 54px -26px rgba(21,20,15,.45)}
         .ai-q{font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid var(--line)}
         .ai-q .qmark{width:22px;height:22px;border-radius:7px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:12px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
         .ai-a{padding-top:14px}
@@ -578,9 +579,11 @@ export default function DiagnoseClient() {
 
         @media(max-width:640px){
           .wrap{padding:0 18px}
-          .hero{padding:32px 0 30px}
-          .hero-wrap{grid-template-columns:1fr;gap:24px}
-          .hero-sub{font-size:15px}
+          .hero{padding:28px 0 26px}
+          .hero-grid{grid-template-columns:1fr;gap:22px}
+          .hero-sub{font-size:14.5px}
+          .search-main{flex-direction:column}
+          .search-btn{padding:14px 0}
           .header-right{gap:8px}
           .settings-link{font-size:11px;padding:6px 10px}
           .kakao-btn{font-size:11px;padding:6px 10px}
