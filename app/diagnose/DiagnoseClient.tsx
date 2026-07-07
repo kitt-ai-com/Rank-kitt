@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type KeyboardEvent, type ReactNode } from "react";
+import { useState, useEffect, type KeyboardEvent } from "react";
 
 /* ---------------- 타입 ---------------- */
 type Channel = { name: string; status: string; impact: string; note: string; action: string };
@@ -74,26 +74,6 @@ const PLATFORMS = [
   ) },
 ];
 
-/* 세로 슬라이딩(슬롯머신) 로테이션 칩 */
-function CyclingChip({ item }: { item: { name: string; icon: ReactNode } }) {
-  const [shown, setShown] = useState(item);
-  const [flipping, setFlipping] = useState(false);
-  useEffect(() => {
-    if (item.name === shown.name) return;
-    setFlipping(true);
-    const swap = setTimeout(() => setShown(item), 260);
-    const end = setTimeout(() => setFlipping(false), 520);
-    return () => { clearTimeout(swap); clearTimeout(end); };
-  }, [item, shown.name]);
-  return (
-    <span className="pchip">
-      <span className={"pflip" + (flipping ? " flip" : "")}>
-        <span className="picon">{shown.icon}</span>{shown.name}
-      </span>
-    </span>
-  );
-}
-
 const effClass = (e = "") => (/낮/.test(e) ? "low" : /높/.test(e) ? "high" : "mid");
 const statClass = (s = "") => (/있/.test(s) ? "ok" : /부분/.test(s) ? "part" : /없/.test(s) ? "no" : "na");
 const impClass = (i = "") => (/높/.test(i) ? "high" : /낮/.test(i) ? "low" : "mid");
@@ -106,24 +86,6 @@ export default function DiagnoseClient() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
 
-  /* 플랫폼 칩 세로 슬라이딩 로테이션 (8칸이 풀을 순환) */
-  const [slots, setSlots] = useState<number[]>(() => Array.from({ length: 8 }, (_, i) => i));
-  useEffect(() => {
-    let cursor = 0, poolPtr = 8;
-    const id = setInterval(() => {
-      setSlots((prev) => {
-        const copy = [...prev];
-        for (let t = 0; t < PLATFORMS.length; t++) {
-          const cand = poolPtr % PLATFORMS.length;
-          poolPtr = (poolPtr + 1) % PLATFORMS.length;
-          if (!copy.includes(cand)) { copy[cursor] = cand; break; }
-        }
-        cursor = (cursor + 1) % copy.length;
-        return copy;
-      });
-    }, 1600);
-    return () => clearInterval(id);
-  }, []);
 
   /* ---- API 설정 모달 ---- */
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -253,10 +215,12 @@ export default function DiagnoseClient() {
           </div>
           <div className="platforms">
             <div className="plabel">이런 AI 검색·플랫폼에서 브랜드 노출을 진단합니다</div>
-            <div className="plist">
-              {slots.map((idx, i) => (
-                <CyclingChip key={i} item={PLATFORMS[idx]} />
-              ))}
+            <div className="marquee">
+              <div className="marquee-track">
+                {[...PLATFORMS, ...PLATFORMS].map((p, i) => (
+                  <span className="pchip" key={i}><span className="picon">{p.icon}</span>{p.name}</span>
+                ))}
+              </div>
             </div>
           </div>
           {error && <div className="err">{error}</div>}
@@ -526,15 +490,14 @@ export default function DiagnoseClient() {
 
         .platforms{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
         .plabel{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
-        .plist{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
-        .plist::-webkit-scrollbar{display:none}
-        .pchip{display:inline-flex;align-items:center;flex-shrink:0;white-space:nowrap;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;overflow:hidden;transition:border-color .15s,transform .15s}
-        .pflip{display:inline-flex;align-items:center;gap:7px}
-        .pflip.flip{animation:slotFlip .52s ease}
-        @keyframes slotFlip{0%{transform:translateY(0);opacity:1}44%{transform:translateY(-85%);opacity:0}56%{transform:translateY(85%);opacity:0}100%{transform:translateY(0);opacity:1}}
-        .pchip:hover{border-color:var(--accent);transform:translateY(-1px)}
-        .pchip .picon{display:inline-flex;width:16px;height:16px;flex-shrink:0}
-        .pchip .picon svg{width:16px;height:16px;display:block}
+        .marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+        .marquee-track{display:flex;width:max-content;animation:marquee 34s linear infinite}
+        .marquee:hover .marquee-track{animation-play-state:paused}
+        @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        .pchip{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap;margin-right:9px;font-family:var(--mono);font-size:12px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:6px 13px;letter-spacing:.01em;transition:border-color .15s}
+        .pchip:hover{border-color:var(--accent)}
+        .pchip .picon{display:inline-flex;width:17px;height:17px;flex-shrink:0}
+        .pchip .picon svg{width:17px;height:17px;display:block}
 
         .loading{padding:56px 0;text-align:center}
         .spin{width:34px;height:34px;border:3px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;margin:0 auto 20px;animation:sp 800ms linear infinite}
