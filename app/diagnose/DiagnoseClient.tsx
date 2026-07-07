@@ -319,7 +319,10 @@ export default function DiagnoseClient() {
               <div className="eyebrow">Next Step</div>
               <h2>이 전략, Kitt AI가 실행까지 대행합니다.</h2>
               <p>진단은 시작일 뿐입니다. 구조화·인용 자산 구축·월간 모니터링까지 전 과정을 맡길 수 있습니다.</p>
-              <a href="mailto:partner@kitt.ai.kr?subject=AEO/GEO%20실행%20문의">실행 문의하기 →</a>
+              <div className="rcta-btns">
+                <a className="rcta-kakao" href="http://pf.kakao.com/_BDanX/chat" target="_blank" rel="noreferrer">💬 카카오톡 상담</a>
+                <a className="rcta-mail" href="mailto:partner@kitt.ai.kr?subject=AEO/GEO%20실행%20문의">이메일 문의 →</a>
+              </div>
             </div>
           </div>
         </section>
@@ -571,7 +574,12 @@ export default function DiagnoseClient() {
         .rcta .eyebrow{color:#8f8dfb}
         .rcta h2{font-weight:900;font-size:22px;letter-spacing:-.015em;margin:12px 0 10px}
         .rcta p{color:#c9c7bd;font-size:14.5px;max-width:38em;margin-bottom:22px}
-        .rcta a{display:inline-block;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.03em;background:var(--accent);color:#fff;text-decoration:none;padding:13px 24px;border-radius:9px}
+        .rcta-btns{display:flex;gap:11px;flex-wrap:wrap}
+        .rcta-btns a{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.03em;text-decoration:none;padding:13px 22px;border-radius:9px;transition:transform .15s,box-shadow .2s}
+        .rcta .rcta-kakao{background:#FEE500;color:#3c1e1e}
+        .rcta .rcta-kakao:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(254,229,0,.65)}
+        .rcta .rcta-mail{background:var(--accent);color:#fff}
+        .rcta .rcta-mail:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px rgba(46,43,230,.7)}
 
         .foot{border-top:1px solid var(--line);padding:22px 0;font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center;letter-spacing:.03em}
         .foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line-strong);transition:color .15s,border-color .15s}
@@ -614,7 +622,8 @@ export default function DiagnoseClient() {
           .pdeliver{margin:4px 16px 16px}
           .prio li{font-size:14.5px;padding:13px 15px}
           .rcta{padding:26px 20px;border-radius:14px}
-          .rcta a{display:block;text-align:center}
+          .rcta-btns{flex-direction:column}
+          .rcta-btns a{justify-content:center}
         }
         @media(max-width:380px){ .panel h1 em{white-space:normal} }
       `}</style>
