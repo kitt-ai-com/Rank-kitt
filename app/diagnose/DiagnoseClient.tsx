@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type KeyboardEvent } from "react";
+import { useState, useEffect, type KeyboardEvent, type ReactNode } from "react";
 
 /* ---------------- 타입 ---------------- */
 type Channel = { name: string; status: string; impact: string; note: string; action: string };
@@ -60,7 +60,39 @@ const PLATFORMS = [
   { name: "나무위키", icon: (
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#008275" /><path d="M12 5l4.2 6.2h-2.6l2.6 4H7.8l2.6-4H7.8z" fill="#fff" /><rect x="11.2" y="14.5" width="1.6" height="4" fill="#fff" /></svg>
   ) },
+  { name: "Claude", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#D97757" /><g stroke="#fff" strokeWidth="1.4" strokeLinecap="round"><path d="M12 5.5v13M6.2 8.2l11.6 7.6M17.8 8.2 6.2 15.8" /></g></svg>
+  ) },
+  { name: "Bing", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0D8484" /><path d="M8.5 5.5l3 1.2v7.3l3.4-2-2-.9 1.2-3-5.6-2.6z" fill="#fff" /></svg>
+  ) },
+  { name: "Grok", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#141414" /><path d="M8 16l6.5-8M10 8h5v5" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  ) },
+  { name: "다음", icon: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A5AF5" /><path d="M8 6.5h3.5a5.5 5.5 0 0 1 0 11H8zm2.4 3v5h1.1a2.5 2.5 0 0 0 0-5z" fill="#fff" fillRule="evenodd" /></svg>
+  ) },
 ];
+
+/* 세로 슬라이딩(슬롯머신) 로테이션 칩 */
+function CyclingChip({ item }: { item: { name: string; icon: ReactNode } }) {
+  const [shown, setShown] = useState(item);
+  const [flipping, setFlipping] = useState(false);
+  useEffect(() => {
+    if (item.name === shown.name) return;
+    setFlipping(true);
+    const swap = setTimeout(() => setShown(item), 260);
+    const end = setTimeout(() => setFlipping(false), 520);
+    return () => { clearTimeout(swap); clearTimeout(end); };
+  }, [item, shown.name]);
+  return (
+    <span className="pchip">
+      <span className={"pflip" + (flipping ? " flip" : "")}>
+        <span className="picon">{shown.icon}</span>{shown.name}
+      </span>
+    </span>
+  );
+}
 
 const effClass = (e = "") => (/낮/.test(e) ? "low" : /높/.test(e) ? "high" : "mid");
 const statClass = (s = "") => (/있/.test(s) ? "ok" : /부분/.test(s) ? "part" : /없/.test(s) ? "no" : "na");
@@ -73,6 +105,25 @@ export default function DiagnoseClient() {
   const [lmsg, setLmsg] = useState(LOADING_MSGS[0]);
   const [error, setError] = useState("");
   const [result, setResult] = useState<Result | null>(null);
+
+  /* 플랫폼 칩 세로 슬라이딩 로테이션 (8칸이 풀을 순환) */
+  const [slots, setSlots] = useState<number[]>(() => Array.from({ length: 8 }, (_, i) => i));
+  useEffect(() => {
+    let cursor = 0, poolPtr = 8;
+    const id = setInterval(() => {
+      setSlots((prev) => {
+        const copy = [...prev];
+        for (let t = 0; t < PLATFORMS.length; t++) {
+          const cand = poolPtr % PLATFORMS.length;
+          poolPtr = (poolPtr + 1) % PLATFORMS.length;
+          if (!copy.includes(cand)) { copy[cursor] = cand; break; }
+        }
+        cursor = (cursor + 1) % copy.length;
+        return copy;
+      });
+    }, 1600);
+    return () => clearInterval(id);
+  }, []);
 
   /* ---- API 설정 모달 ---- */
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -203,8 +254,8 @@ export default function DiagnoseClient() {
           <div className="platforms">
             <div className="plabel">이런 AI 검색·플랫폼에서 브랜드 노출을 진단합니다</div>
             <div className="plist">
-              {PLATFORMS.map((p) => (
-                <span className="pchip" key={p.name}><span className="picon">{p.icon}</span>{p.name}</span>
+              {slots.map((idx, i) => (
+                <CyclingChip key={i} item={PLATFORMS[idx]} />
               ))}
             </div>
           </div>
@@ -477,7 +528,10 @@ export default function DiagnoseClient() {
         .plabel{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
         .plist{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
         .plist::-webkit-scrollbar{display:none}
-        .pchip{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;transition:border-color .15s,transform .15s}
+        .pchip{display:inline-flex;align-items:center;flex-shrink:0;white-space:nowrap;font-family:var(--mono);font-size:12.5px;font-weight:500;color:#3a382f;background:#fff;border:1px solid var(--line-strong);border-radius:999px;padding:7px 14px;letter-spacing:.01em;overflow:hidden;transition:border-color .15s,transform .15s}
+        .pflip{display:inline-flex;align-items:center;gap:7px}
+        .pflip.flip{animation:slotFlip .52s ease}
+        @keyframes slotFlip{0%{transform:translateY(0);opacity:1}44%{transform:translateY(-85%);opacity:0}56%{transform:translateY(85%);opacity:0}100%{transform:translateY(0);opacity:1}}
         .pchip:hover{border-color:var(--accent);transform:translateY(-1px)}
         .pchip .picon{display:inline-flex;width:16px;height:16px;flex-shrink:0}
         .pchip .picon svg{width:16px;height:16px;display:block}
